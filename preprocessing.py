@@ -4,8 +4,9 @@ import numpy as np
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler
 from matplotlib.colors import LinearSegmentedColormap
+from sklearn.decomposition import PCA
 
-df = pd.read_csv("/home/victor/code/Victorpeereiraa/cross_genre_music_discovery/spotify-tracks-dataset-detailed.csv")
+df = pd.read_csv("/home/victor/code/Victorpeereiraa/cross_genre_music_discovery/raw_data/spotify-tracks-dataset-detailed.csv")
 
 def preprocessing(df):
 
@@ -60,4 +61,16 @@ def preprocessing(df):
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    return X_scaled, df_metadata, scaler
+    return X_scaled, df_metadata, scaler, features
+
+def PCA_transform(df_scaled, number_of_compoments = 3):
+    # 1. Treinar o modelo com o número de features escolhida para o pca
+    pca = PCA(number_of_compoments)
+    pca.fit(df_scaled)
+
+
+    X_proj = pd.DataFrame(pca.fit_transform(df_scaled), columns=[f"PC{i}" for i in range(number_of_compoments)])
+    return X_proj
+
+X_scaled, df_metadata, scaler, features = preprocessing(df)
+print(PCA_transform(X_scaled,number_of_compoments=5))
