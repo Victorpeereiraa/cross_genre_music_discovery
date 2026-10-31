@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from matplotlib.colors import LinearSegmentedColormap
 from sklearn.decomposition import PCA
 
-df = pd.read_csv("/home/victor/code/Victorpeereiraa/cross_genre_music_discovery/raw_data/spotify-tracks-dataset-detailed.csv")
+df = pd.read_csv("../raw_data/spotify-tracks-dataset-detailed.csv")
 
 def preprocessing(df):
 
