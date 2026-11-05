@@ -6,7 +6,6 @@ from sklearn.preprocessing import StandardScaler
 from matplotlib.colors import LinearSegmentedColormap
 from sklearn.decomposition import PCA
 
-df = pd.read_csv("../raw_data/spotify-tracks-dataset-detailed.csv")
 
 def preprocessing(df):
 
@@ -71,6 +70,3 @@ def PCA_transform(df_scaled, number_of_compoments = 3):
 
     X_proj = pd.DataFrame(pca.fit_transform(df_scaled), columns=[f"PC{i}" for i in range(number_of_compoments)])
     return X_proj
-
-X_scaled, df_metadata, scaler, features = preprocessing(df)
-print(PCA_transform(X_scaled,number_of_compoments=5))
