@@ -1,0 +1,11 @@
+track_id,artists,album_name,track_name,popularity,duration_ms,explicit,danceability,energy,key,loudness,mode,speechiness,acousticness,instrumentalness,liveness,valence,tempo,time_signature,track_genre
+0Oho1Elt6nNyiHZyZR8OaG,Jane Monheit,Surrender,A Time For Love,36,301320,False,0.249,0.284,1,-12.1,0,0.0368,0.941,5.62e-05,0.239,0.0738,116.665,4,jazz
+7esh5OJ7CP435rmXeGm305,Eartha Kitt,Classic Christmas Greatest Hits,Santa Baby,0,168949,False,0.467,0.237,5,-13.373,0,0.0542,0.892,3.46e-06,0.148,0.388,101.759,4,jazz
+5cQANJMHoDKb2fCxr5pZkq,Leo Gandelman;Baco Exu do Blues;Machine Series,Hip Hop Machine #6,Flamingos,40,367658,False,0.562,0.507,1,-9.754,1,0.121,0.682,0.000227,0.175,0.65,73.313,4,jazz
+4nbILrYODP667b3d66ZMzI,Dean Martin,"Hey, Brother Pour The Wine",Sway (Quien Sera),59,162960,False,0.601,0.239,2,-12.175,0,0.0384,0.727,1.43e-06,0.0748,0.569,120.036,4,jazz
+1fBUmT2qNGdTgaS4XXwGnA,Nat King Cole,Christmas Only: The Timeless Classic Collection,O Little Town of Bethlehem,0,137253,False,0.258,0.292,4,-10.73,0,0.0291,0.868,2.59e-06,0.11,0.145,134.943,3,jazz
+13cpOnmccZGVGFngLxYN4I,Kenny G,Breathless,Forever in Love,55,299493,False,0.343,0.318,5,-14.901,1,0.0312,0.336,0.158,0.17,0.11,81.993,4,jazz
+4m6OC8u2rC6LMFtFWsME7d,Chet Baker,Chet Baker Sings,Time After Time - Vocal Version,61,166760,False,0.501,0.0454,0,-18.783,1,0.0388,0.938,3.76e-05,0.2,0.255,99.783,4,jazz
+6SvIO9X1alZpKyG3g8EAHB,Peggy Lee,Christmas Classics,The Christmas Waltz,1,173106,False,0.25,0.168,1,-16.789,0,0.0329,0.822,0.000135,0.136,0.141,107.269,3,jazz
+3Nsn3y2IpzcuDIKZDgS3oS,Luis Arcaraz Y Su Orquesta,Cita Con Luis Arcaraz,Viajera,37,197373,False,0.334,0.332,8,-7.029,1,0.0261,0.918,0.00236,0.366,0.429,97.086,4,jazz
+4v5PKC5rvQwb33NWX82UH8,Carlos Lyra,Bossa Nova Carlos Lyra,Você e Eu (You and Me),40,63506,False,0.681,0.253,4,-17.969,0,0.0457,0.77,3.43e-06,0.0919,0.767,94.867,4,jazz
