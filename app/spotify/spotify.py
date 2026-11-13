@@ -2,6 +2,7 @@ import requests
 from spotipy.oauth2 import SpotifyPKCE, CacheFileHandler
 from IPython.display import HTML, display
 import pandas as pd
+import streamlit.components.v1 as components
 
 
 
@@ -128,3 +129,14 @@ def display_player(playlist_id):
         loading="lazy">
         </iframe>
         """))
+
+
+def display_player_streamlit(playlist_id):
+    """
+    Shows the Spotify player with the playlist in Streamlit.
+    """
+    components.iframe(
+        src=f"https://open.spotify.com/embed/playlist/{playlist_id}",
+        height=600,
+        scrolling=False
+    )

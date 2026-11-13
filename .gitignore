@@ -1,3 +1,5 @@
 .DS_Store
 .spotify_token_cache
 __pycache__
+*.egg-info/
+.streamlit/secrets.toml
