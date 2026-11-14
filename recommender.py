@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-
+from sklearn.metrics import pairwise_distances
 
 df = pd.read_csv("../cross_genre_music_discovery/raw_data/spotify-tracks-dataset-detailed.csv")
 
@@ -271,3 +271,47 @@ def recomendar_musicas(
     ].reset_index(drop=True)
 
     return playlist
+
+
+
+def calcular_probabilidades(distancias, modo="seguro"):
+
+    # Temperaturas permitidas
+    temperaturas = {
+        "seguro": 0.3,
+        "surpresa": 1.8
+    }
+
+    # Validar o modo escolhido
+    if modo not in temperaturas:
+        raise ValueError(
+            "Escolha 'seguro' ou 'surpresa'."
+        )
+
+    # Recuperar a temperatura correspondente
+    temperature = temperaturas[modo]
+
+    # Converter as distâncias em array NumPy
+    distancias = np.asarray(distancias, dtype=float)
+
+    if not np.isfinite(distancias).all():
+        raise ValueError("Existem distâncias inválidas.")
+
+    # Normalizar a escala das distâncias
+    escala = max(np.std(distancias), 1e-8)
+
+    dist_normalizadas = (
+        distancias - distancias.min()
+    ) / escala
+
+    # Converter distâncias em pesos
+    logits = -dist_normalizadas / temperature
+    pesos = np.exp(logits - logits.max())
+
+    # Evitar probabilidades numericamente iguais a zero
+    pesos = np.maximum(pesos, 1e-12)
+
+    # Fazer as probabilidades somarem 1
+    probabilidades = pesos / pesos.sum()
+
+    return probabilidades
