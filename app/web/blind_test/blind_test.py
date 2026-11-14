@@ -13,7 +13,21 @@ from app.models.autoencoder_knn_model import Autoencoder_kNN_Model
 
 
 
+
+# ------------------------ Creating (empty) playlists ------------------------
+
 token = spo.get_access_token()
+
+input_playlist_id = spo.create_playlist(token)
+
+nb_models = 2
+recommendation_playlist_ids = []
+for i in range(nb_models):
+    recommendation_playlist_ids.append( spo.create_playlist(token))
+
+
+
+
 
 root = Path(__file__).resolve().parents[3]
 path = root / "artifacts" / "input_track_lists"
@@ -26,22 +40,18 @@ path = root / "artifacts" / "input_track_lists"
 st.markdown('# Input tracks')
 
 # Load jazz.csv
-
 input_tracks_jazz = pd.read_csv(path / 'jazz.csv')
-#st.table(input_tracks_jazz[['track_id', 'artists', 'album_name', 'track_name', 'track_genre']])
 
 
 # show Spotify player
+spo.add_tracks_to_playlist(token, input_playlist_id, input_tracks_jazz['track_id'])
+spo.display_player_streamlit(input_playlist_id)
 
-playlist_id = spo.create_playlist(token)
-spo.add_tracks_to_playlist(token, playlist_id, input_tracks_jazz['track_id'])
-spo.display_player_streamlit(playlist_id)
-
-st.iframe(
-    "https://open.spotify.com/embed/playlist/1rX1RzugQm6ZAUhTRn4fHy",
-    height=352,
-    width="stretch"
-)
+# st.iframe(
+#     "https://open.spotify.com/embed/playlist/1rX1RzugQm6ZAUhTRn4fHy",
+#     height=352,
+#     width="stretch"
+# )
 
 
 
@@ -122,9 +132,9 @@ if trial is not None:
             st.subheader(f"Playlist {label}")
 
             # show Spotify player
-            playlist_id = spo.create_playlist(token)
-            spo.add_tracks_to_playlist(token, playlist_id, result["track_ids"])
-            spo.display_player_streamlit(playlist_id)
+            #playlist_id = spo.create_playlist(token)
+            spo.add_tracks_to_playlist(token, recommendation_playlist_ids[i], result["track_ids"])
+            spo.display_player_streamlit(recommendation_playlist_ids[i])
 
 
     # Scoring form
