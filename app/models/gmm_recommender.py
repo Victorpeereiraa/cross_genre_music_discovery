@@ -30,7 +30,7 @@ class GMMModel(AbstractModel):
         "tempo"
     ]
 
-    def __init__(self, modo="seguro"):
+    def __init__(self, modo="seguro", configuracao="pca3_tied15"):
 
         if modo not in ["seguro", "surpresa"]:
             raise ValueError("Modo inválido.")
@@ -42,9 +42,17 @@ class GMMModel(AbstractModel):
         root = Path(__file__).resolve().parents[2]
 
         # Localizar o modelo salvo
+        configuracoes = {
+        "pca3_tied15": "gmm_pca3_tied15.joblib",
+        "pca5_diag30": "gmm_pca5_diag30.joblib"
+        }
+
+        if configuracao not in configuracoes:
+            raise ValueError("Configuração de GMM inválida.")
+
         caminho_modelo = (
             root / "artifacts" / "models" / "gmm"
-            / "gmm_pca3_tied15.joblib"
+            / configuracoes[configuracao]
         )
 
         # Carregar os objetos treinados
