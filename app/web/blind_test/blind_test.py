@@ -18,14 +18,22 @@ from app.models.autoencoder_knn_model import Autoencoder_kNN_Model
 
 token = spo.get_access_token()
 
-input_playlist_id = spo.create_playlist(token)
+
+
+if "input_playlist_id" not in st.session_state:
+    st.session_state.input_playlist_id = spo.create_playlist(token)
+
+input_playlist_id = st.session_state.input_playlist_id
+
 
 nb_models = 2
-recommendation_playlist_ids = []
-for i in range(nb_models):
-    recommendation_playlist_ids.append( spo.create_playlist(token))
+if "recommendation_playlist_ids" not in st.session_state:
+    st.session_state.recommendation_playlist_ids = [
+        spo.create_playlist(token)
+        for _ in range(nb_models)
+    ]
 
-
+recommendation_playlist_ids = st.session_state.recommendation_playlist_ids
 
 
 

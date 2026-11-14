@@ -1,7 +1,12 @@
 import requests
-from spotipy.oauth2 import SpotifyPKCE, CacheFileHandler
+import json
+import re
 import pandas as pd
 import streamlit as st
+
+from spotipy.oauth2 import SpotifyPKCE, CacheFileHandler
+
+
 
 
 CLIENT_ID = st.secrets["SPOTIFY_CLIENT_ID"]
@@ -136,13 +141,88 @@ def display_player(playlist_id):
 
 def display_player_streamlit(playlist_id):
     """
-    Shows the Spotify player with the playlist in Streamlit.
-    Use in Streamlit page
+    Displays a Spotify playlist with a reload button.
+    Reloading does not rerun the Streamlit application.
     """
+
     url = f"https://open.spotify.com/embed/playlist/{playlist_id}"
 
+    html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {
+                margin: 0;
+                font-family: sans-serif;
+            }
+
+            iframe {
+                width: 100%;
+                height: 352px;
+                border: none;
+                border-radius: 12px;
+            }
+
+            button {
+                margin-top: 10px;
+                padding: 8px 14px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div id="player"></div>
+
+        <button id="reload">
+            🔄 Reload playlist
+        </button>
+
+        <script>
+            const embedUrl = __EMBED_URL__;
+            const player = document.getElementById("player");
+
+            function loadPlayer() {
+                // Remove the old player
+                player.replaceChildren();
+
+                // Create a new Spotify iframe
+                const iframe = document.createElement("iframe");
+
+                iframe.src = embedUrl;
+
+                iframe.allow =
+                    "autoplay; clipboard-write; encrypted-media; " +
+                    "fullscreen; picture-in-picture";
+
+                iframe.loading = "eager";
+
+                player.appendChild(iframe);
+            }
+
+            // Load the player initially
+            loadPlayer();
+
+            // Reload only the Spotify iframe
+            document.getElementById("reload")
+                .addEventListener("click", loadPlayer);
+        </script>
+
+    </body>
+    </html>
+    """
+
+    html = html.replace(
+        "__EMBED_URL__",
+        json.dumps(url)
+    )
+
     st.iframe(
-        src=url,
-        height=600,
+        src=html,
+        height=420,
         width="stretch"
     )
