@@ -37,6 +37,12 @@ playlist_id = spo.create_playlist(token)
 spo.add_tracks_to_playlist(token, playlist_id, input_tracks_jazz['track_id'])
 spo.display_player_streamlit(playlist_id)
 
+st.iframe(
+    "https://open.spotify.com/embed/playlist/1rX1RzugQm6ZAUhTRn4fHy",
+    height=352,
+    width="stretch"
+)
+
 
 
 # ------------------------ Load models ------------------------
