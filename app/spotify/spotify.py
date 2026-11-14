@@ -144,5 +144,5 @@ def display_player_streamlit(playlist_id):
     st.iframe(
         src=url,
         height=600,
-        scrolling=False
+        width="stretch"
     )
