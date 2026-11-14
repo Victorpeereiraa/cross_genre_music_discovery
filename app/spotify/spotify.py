@@ -1,13 +1,11 @@
 import requests
 from spotipy.oauth2 import SpotifyPKCE, CacheFileHandler
-from IPython.display import HTML, display
 import pandas as pd
-import streamlit.components.v1 as components
+import streamlit as st
 
 
 
 CLIENT_ID = "f1f9e4ee251c4d0993747e73c48d6cce"
-PLAYLIST_ID = "33aWOeIiteZ2thsep1QGzN"
 
 
 
@@ -26,7 +24,7 @@ def get_access_token():
     """
 
     auth_manager = SpotifyPKCE(
-        client_id="f1f9e4ee251c4d0993747e73c48d6cce",
+        client_id=CLIENT_ID,
         redirect_uri="http://127.0.0.1:9090/callback",
         scope="playlist-modify-public",
         cache_handler=CacheFileHandler(
@@ -114,6 +112,7 @@ def add_tracks_to_playlist(access_token, playlist_id, track_ids):
 
 
 def display_player(playlist_id):
+    from IPython.display import HTML, display
     """
         Shows the Spotify player with the playlist
     """
@@ -135,7 +134,7 @@ def display_player_streamlit(playlist_id):
     """
     Shows the Spotify player with the playlist in Streamlit.
     """
-    components.iframe(
+    st.components.v1.iframe(
         src=f"https://open.spotify.com/embed/playlist/{playlist_id}",
         height=600,
         scrolling=False
