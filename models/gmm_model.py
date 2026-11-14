@@ -1,4 +1,5 @@
 from sklearn.mixture import GaussianMixture
+import pandas as pd
 
 GMM_CONFIGS = {
     "pca3_tied15": {
@@ -28,3 +29,16 @@ def train_gmm(
     model.fit(X)
 
     return model
+
+def predict_gmm(model, scaler, pca, X_new, features):
+    """Classifica músicas novas usando os mesmos objetos ajustados no treino."""
+    X_scaled = scaler.transform(X_new[features])
+    X_pca = pca.transform(X_scaled)
+
+    probs = model.predict_proba(X_pca)
+
+    resultado = X_new.copy()
+    resultado["cluster"] = probs.argmax(axis=1)
+    resultado["confianca"] = probs.max(axis=1)
+    resultado["log_verossimilhanca"] = model.score_samples(X_pca)
+    return resultado

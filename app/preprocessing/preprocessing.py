@@ -118,6 +118,20 @@ def preprocessing(df):
 
     return X_scaled, df_metadata, scaler, features
 
+<<<<<<< HEAD
+def PCA_transform(df_scaled, number_of_components = 3):
+    # 1. Treinar o modelo com o número de features escolhida para o pca
+
+    pca = PCA(n_components=number_of_components)
+
+    X_proj = pd.DataFrame(
+        pca.fit_transform(df_scaled),
+        columns=[f"PC{i+1}" for i in range(number_of_components)],
+        index=df_scaled.index
+    )
+
+    return X_proj, pca
+=======
 
 def PCA_transform(df_scaled, number_of_compoments=3):
 
@@ -131,3 +145,4 @@ def PCA_transform(df_scaled, number_of_compoments=3):
     )
 
     return X_proj
+>>>>>>> ef0ac14bb04af080764d0c185b5d08a9564b9824
