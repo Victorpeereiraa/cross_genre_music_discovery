@@ -139,8 +139,10 @@ def display_player_streamlit(playlist_id):
     Shows the Spotify player with the playlist in Streamlit.
     Use in Streamlit page
     """
-    st.components.v1.iframe(
-        src=f"https://open.spotify.com/embed/playlist/{playlist_id}",
+    url = f"https://open.spotify.com/embed/playlist/{playlist_id}"
+
+    st.iframe(
+        src=url,
         height=600,
         scrolling=False
     )
