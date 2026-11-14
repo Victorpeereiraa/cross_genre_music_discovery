@@ -10,7 +10,8 @@ matplotlib==3.7.5
 seaborn==0.12.2
 
 # Application
-streamlit
+streamlit==1.60.0
+starlette==1.4.1
 spotipy
 joblib
 supabase
