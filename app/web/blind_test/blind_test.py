@@ -13,8 +13,15 @@ from app.web.blind_test.scoring import save_vote
 from app.models.baseline_model import BaselineModel
 from app.models.autoencoder_knn_model import Autoencoder_kNN_Model
 from app.models.gmm_recommender import GMMModel
+from app.models.dbscan_model import DBSCANModel
+from app.models.kmeans_model import KMeansModel
 
 
+
+st.set_page_config(
+    page_title="Beyond Genre",
+    layout="wide"
+)
 
 # ------------------------ Input track lists ------------------------
 
@@ -67,7 +74,7 @@ if "input_playlist_ids" not in st.session_state:
 input_playlist_ids = st.session_state.input_playlist_ids
 
 
-nb_models = 4
+nb_models = 6
 if "recommendation_playlist_ids" not in st.session_state:
     st.session_state.recommendation_playlist_ids = [
         spo.create_playlist(token)
@@ -146,7 +153,7 @@ if "models" not in st.session_state:
     baseline_model = BaselineModel()
     models.append(baseline_model)
 
-    # Load autoencoder
+    # # Load autoencoder
     autoencoder_knn_model = Autoencoder_kNN_Model()
     models.append(autoencoder_knn_model)
 
@@ -156,6 +163,12 @@ if "models" not in st.session_state:
 
     pca5_gmm_model = GMMModel(configuracao="pca5_diag30")
     models.append(pca5_gmm_model)
+
+    dbscan_model = DBSCANModel()
+    models.append(dbscan_model)
+
+    kmeans_model = KMeansModel()
+    models.append(kmeans_model)
 
     # Shuffling the list so that we don't know which model produce which recommendation
     random.shuffle(models)

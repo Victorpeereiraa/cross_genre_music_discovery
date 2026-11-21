@@ -11,7 +11,6 @@ class AbstractModel(ABC):
         "speechiness",
         "acousticness",
         "instrumentalness",
-        "liveness",
         "valence",
         "tempo"
     ]
