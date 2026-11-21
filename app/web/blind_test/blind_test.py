@@ -31,8 +31,8 @@ input_tracklists = [
         "filename": "Playlist_ECLETICA.csv"
     },
     {
-        "name": "Homogênea",
-        "filename": "Playlist_HOMOGENEA.csv"
+        "name": "Playlist_Nathalia",
+        "filename": "Playlist_NATHALIA.csv"
     },
     {
         "name": "Intermediária",
