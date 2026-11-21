@@ -71,6 +71,10 @@ def create_playlist(access_token):
         timeout=20
     )
 
+    if response.status_code == 429:
+        print("Spotify 429:", response.text)
+        print("Retry-After:", response.headers.get("Retry-After"))
+
     response.raise_for_status()
 
     playlist_id = response.json()["id"]

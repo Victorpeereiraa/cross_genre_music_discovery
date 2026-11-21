@@ -33,7 +33,7 @@ class BaselineModel(AbstractModel):
         input_tracks_scaled = self.scaler.transform(input_tracks)
 
         # calculate input tracks profile
-        input_profile = input_tracks_scaled.mean(axis=0).to_frame().T
+        input_profile = input_tracks_scaled.mean(axis=0, keepdims=True)
 
         # Find neighbors
         distances, indices = self.model.kneighbors(input_profile, n_neighbors=self.output_size)
