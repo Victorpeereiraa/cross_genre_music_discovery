@@ -1,21 +1,22 @@
-from pathlib import Path
+
 import numpy as np
 import pandas as pd
-import ipywidgets as widgets
-from IPython.display import display
+import streamlit as st
 
+from pathlib import Path
 from app.models.abstract_model import AbstractModel
 
 
 class TrackSelection:
 
-    def __init__(self, catalog=None, max_suggestions=10, min_chars=2):
+    def __init__(self, catalog=None, max_suggestions=10, min_chars=2, key="track_selection"):
 
         self.max_tracks = AbstractModel.input_size
         self.max_suggestions = max_suggestions
         self.min_chars = min_chars
+        self.key = key
 
-        # Loading catalog (needs track_name and artists; genres is optional)
+        # Load catalog
         if catalog is None:
             root = Path(__file__).resolve().parents[2]
             catalog = pd.read_parquet(root / "artifacts" / "catalog_clean.parquet")
@@ -27,16 +28,21 @@ class TrackSelection:
         if missing:
             raise ValueError(f"The catalog needs the columns: {missing}")
 
-        self.catalog_clean = catalog[~catalog.index.duplicated()]
+        self.catalog_clean = catalog[~catalog.index.duplicated()].copy()
 
-        # Search columns live in their own dataframe (the catalog is not changed)
+        # Identify genre column
         genre_col = next(
-            (c for c in self.catalog_clean.columns if c.strip().lower() in ("genres", "genre", "track_genre")),
+            (
+                c for c in self.catalog_clean.columns
+                if str(c).strip().lower() in ("genres", "genre", "track_genre")
+            ),
             None
         )
 
+        # Prepare search dataframe
         track_name = self.catalog_clean["track_name"].fillna("").astype(str).str.lower()
         artists = self.catalog_clean["artists"].fillna("").astype(str).str.lower()
+
         genres = (
             self.catalog_clean[genre_col].apply(self._to_text).str.lower()
             if genre_col else pd.Series("", index=self.catalog_clean.index)
@@ -49,161 +55,83 @@ class TrackSelection:
             "genres": genres
         })
 
-        self.fields = {"Tudo": "all", "Música": "track_name", "Artista": "artists"}
+        self.fields = {
+            "Tudo": "all",
+            "Música": "track_name",
+            "Artista": "artists"
+        }
+
         if genre_col:
             self.fields["Gênero"] = "genres"
 
+        # Labels displayed to the user
         self.labels = dict(zip(
             self.catalog_clean.index,
-            self.catalog_clean["track_name"].astype(str) + " — " + self.catalog_clean["artists"].astype(str)
+            self.catalog_clean["track_name"].astype(str)
+            + " — "
+            + self.catalog_clean["artists"].astype(str)
         ))
 
-        self.selected = []        # selected track ids, in order
-        self.updating = False     # avoids triggering the click when the list is redrawn
-
-        self._build_ui()
+        # Persistent selection
+        if f"{self.key}_selected" not in st.session_state:
+            st.session_state[f"{self.key}_selected"] = []
 
 
     @staticmethod
     def _to_text(value):
 
-        # genres can be a list, an array or a string
         if isinstance(value, str):
             return value
+
         if isinstance(value, (list, tuple, set, np.ndarray)):
             return " ".join(map(str, value))
+
         return "" if pd.isna(value) else str(value)
-
-
-    def _build_ui(self):
-
-        self.field_dropdown = widgets.Dropdown(options=list(self.fields), value="Tudo", description="Campo:")
-        self.search_box = widgets.Text(
-            placeholder="Digite uma música, artista ou gênero...",
-            description="Buscar:",
-            layout=widgets.Layout(width="500px")
-        )
-        self.suggestions = widgets.Select(options=[], rows=8, layout=widgets.Layout(width="500px"))
-        self.counter = widgets.HTML()
-        self.chosen = widgets.Select(options=[], rows=self.max_tracks, layout=widgets.Layout(width="500px"))
-        self.remove_button = widgets.Button(description="Remover", icon="trash")
-        self.clear_button = widgets.Button(description="Limpar tudo")
-
-        self.search_box.observe(self._update_suggestions, names="value")
-        self.field_dropdown.observe(self._update_suggestions, names="value")
-        self.suggestions.observe(self._add, names="value")
-        self.remove_button.on_click(self._remove)
-        self.clear_button.on_click(self._clear)
-
-        self.ui = widgets.VBox([
-            self.field_dropdown,
-            self.search_box,
-            self.suggestions,
-            self.counter,
-            self.chosen,
-            widgets.HBox([self.remove_button, self.clear_button])
-        ])
-
-        self._redraw()
-
-
-    def _redraw(self, warning=""):
-
-        self.chosen.options = [(self.labels[t], t) for t in self.selected]
-
-        status = " ✅ pronto!" if self.is_complete else ""
-        self.counter.value = f"<b>Selecionadas: {len(self.selected)}/{self.max_tracks}</b>{status} {warning}"
-
-
-    def _update_suggestions(self, change=None):
-
-        term = self.search_box.value.strip().lower()
-
-        self.updating = True
-
-        if len(term) < self.min_chars:
-            self.suggestions.options = []
-        else:
-            mask = self.search[self.fields[self.field_dropdown.value]].str.contains(term, regex=False)
-            ids = self.search.index[mask][:self.max_suggestions]
-
-            self.suggestions.options = [
-                (("✓ " if t in self.selected else "") + self.labels[t], t) for t in ids
-            ]
-            self.suggestions.index = None
-
-        self.updating = False
-
-
-    def _add(self, change):
-
-        track_id = change["new"]
-
-        if self.updating or track_id is None:
-            return
-
-        warning = ""
-
-        if len(self.selected) >= self.max_tracks:
-            warning = "⚠️ limite atingido, remova uma para adicionar outra."
-        elif track_id in self.selected:
-            warning = "⚠️ essa música já está na lista."
-        else:
-            self.selected.append(track_id)
-
-        # lets the user click the same suggestion again
-        self.updating = True
-        self.suggestions.index = None
-        self.updating = False
-
-        self._redraw(warning)
-        self._update_suggestions()
-
-
-    def _remove(self, _):
-
-        if self.chosen.value in self.selected:
-            self.selected.remove(self.chosen.value)
-
-        self._redraw()
-        self._update_suggestions()
-
-
-    def _clear(self, _):
-
-        self.selected.clear()
-
-        self._redraw()
-        self._update_suggestions()
-
-
-    def show(self):
-
-        display(self.ui)
 
 
     @property
     def track_ids(self):
 
-        return list(self.selected)
+        return list(st.session_state[f"{self.key}_selected"])
 
 
     @property
     def is_complete(self):
 
-        return len(self.selected) == self.max_tracks
+        return len(self.track_ids) == self.max_tracks
 
 
     @property
     def selected_tracks(self):
 
-        # selected tracks, in the order they were chosen
-        return self.catalog_clean.loc[self.selected].reset_index()
+        return self.catalog_clean.loc[self.track_ids].reset_index()
+
+
+    def add(self, track_id):
+
+        selected = st.session_state[f"{self.key}_selected"]
+
+        if track_id in selected:
+            return False
+
+        if len(selected) >= self.max_tracks:
+            return False
+
+        selected.append(track_id)
+        return True
+
+
+    def remove(self, track_id):
+
+        selected = st.session_state[f"{self.key}_selected"]
+
+        if track_id in selected:
+            selected.remove(track_id)
 
 
     def clear(self):
 
-        self._clear(None)
+        st.session_state[f"{self.key}_selected"] = []
 
 
     def validate(self, track_ids=None):
@@ -214,13 +142,130 @@ class TrackSelection:
             raise TypeError("The input must be a list of track ids")
 
         if len(track_ids) != self.max_tracks:
-            raise ValueError(f"The list must have {self.max_tracks} tracks (received: {len(track_ids)})")
+            raise ValueError(
+                f"The list must have {self.max_tracks} tracks "
+                f"(received: {len(track_ids)})"
+            )
 
         if len(set(track_ids)) != len(track_ids):
             raise ValueError("The list has repeated tracks")
 
-        not_found = [t for t in track_ids if t not in self.catalog_clean.index]
+        not_found = [
+            t for t in track_ids
+            if t not in self.catalog_clean.index
+        ]
+
         if not_found:
             raise ValueError(f"Tracks not found in the catalog: {not_found}")
 
         return track_ids
+
+
+    def render(self):
+
+        st.subheader("Escolha suas músicas")
+
+        st.write(
+            f"Selecione {self.max_tracks} músicas para receber recomendações."
+        )
+
+        # Search field
+        selected_field = st.selectbox(
+            "Buscar por:",
+            options=list(self.fields.keys()),
+            key=f"{self.key}_field"
+        )
+
+        query = st.text_input(
+            "Buscar música, artista ou gênero:",
+            placeholder="Digite pelo menos 2 caracteres...",
+            key=f"{self.key}_query"
+        )
+
+        # Search catalog
+        suggestions = []
+
+        if len(query.strip()) >= self.min_chars:
+
+            column = self.fields[selected_field]
+
+            mask = self.search[column].str.contains(
+                query.strip().lower(),
+                regex=False
+            )
+
+            suggestions = [
+                track_id
+                for track_id in self.search.index[mask]
+                if track_id not in self.track_ids
+            ][:self.max_suggestions]
+
+        # Display search results
+        if suggestions:
+
+            selected_suggestion = st.selectbox(
+                "Resultados encontrados:",
+                options=suggestions,
+                format_func=lambda track_id: self.labels[track_id],
+                key=f"{self.key}_suggestion"
+            )
+
+            if st.button(
+                "Adicionar música",
+                disabled=self.is_complete,
+                key=f"{self.key}_add"
+            ):
+
+                self.add(selected_suggestion)
+                st.rerun()
+
+        elif len(query.strip()) >= self.min_chars:
+
+            st.info("Nenhuma música encontrada.")
+
+        # Display selected tracks
+        st.divider()
+
+        st.write(
+            f"**Músicas selecionadas: {len(self.track_ids)}/{self.max_tracks}**"
+        )
+
+        for i, track_id in enumerate(self.track_ids):
+
+            col_name, col_remove = st.columns([5, 1])
+
+            col_name.write(self.labels[track_id])
+
+            if col_remove.button(
+                "Remover",
+                key=f"{self.key}_remove_{i}"
+            ):
+
+                self.remove(track_id)
+                st.rerun()
+
+        # Clear selection
+        if self.track_ids:
+
+            if st.button(
+                "Limpar seleção",
+                key=f"{self.key}_clear"
+            ):
+
+                self.clear()
+                st.rerun()
+
+        st.divider()
+
+        # Recommendation button
+        recommend_clicked = st.button(
+            "Recomendar",
+            type="primary",
+            disabled=not self.is_complete,
+            key=f"{self.key}_recommend"
+        )
+
+        if recommend_clicked:
+            return self.validate()
+
+        return None
