@@ -168,7 +168,7 @@ def display_player_streamlit(playlist_id):
 
             iframe {
                 width: 100%;
-                height: 352px;
+                height: 500px;
                 border: none;
                 border-radius: 12px;
             }
@@ -232,7 +232,7 @@ def display_player_streamlit(playlist_id):
 
     st.iframe(
         src=html,
-        height=420,
+        height=600,
         width="stretch"
     )
 

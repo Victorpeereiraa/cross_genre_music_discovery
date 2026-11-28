@@ -56,13 +56,13 @@ class TrackSelection:
         })
 
         self.fields = {
-            "Tudo": "all",
-            "Música": "track_name",
-            "Artista": "artists"
+            "All": "all",
+            "Song name": "track_name",
+            "Artist": "artists"
         }
 
         if genre_col:
-            self.fields["Gênero"] = "genres"
+            self.fields["Genre"] = "genres"
 
         # Labels displayed to the user
         self.labels = dict(zip(
@@ -163,22 +163,22 @@ class TrackSelection:
 
     def render(self):
 
-        st.subheader("Escolha suas músicas")
+        #st.subheader("Escolha suas músicas")
 
-        st.write(
-            f"Selecione {self.max_tracks} músicas para receber recomendações."
+        st.markdown(
+            f"# Select {self.max_tracks} tracks"
         )
 
         # Search field
         selected_field = st.selectbox(
-            "Buscar por:",
+            "Search by:",
             options=list(self.fields.keys()),
             key=f"{self.key}_field"
         )
 
         query = st.text_input(
-            "Buscar música, artista ou gênero:",
-            placeholder="Digite pelo menos 2 caracteres...",
+            "Search by song, artist or genre:",
+            placeholder="Enter at least 2 characters...",
             key=f"{self.key}_query"
         )
 
@@ -204,14 +204,14 @@ class TrackSelection:
         if suggestions:
 
             selected_suggestion = st.selectbox(
-                "Resultados encontrados:",
+                "Result found:",
                 options=suggestions,
                 format_func=lambda track_id: self.labels[track_id],
                 key=f"{self.key}_suggestion"
             )
 
             if st.button(
-                "Adicionar música",
+                "Add song",
                 disabled=self.is_complete,
                 key=f"{self.key}_add"
             ):
@@ -221,13 +221,13 @@ class TrackSelection:
 
         elif len(query.strip()) >= self.min_chars:
 
-            st.info("Nenhuma música encontrada.")
+            st.info("No songs found.")
 
         # Display selected tracks
         st.divider()
 
         st.write(
-            f"**Músicas selecionadas: {len(self.track_ids)}/{self.max_tracks}**"
+            f"**Songs selected: {len(self.track_ids)}/{self.max_tracks}**"
         )
 
         for i, track_id in enumerate(self.track_ids):
@@ -237,7 +237,7 @@ class TrackSelection:
             col_name.write(self.labels[track_id])
 
             if col_remove.button(
-                "Remover",
+                "Remove song",
                 key=f"{self.key}_remove_{i}"
             ):
 
@@ -248,7 +248,7 @@ class TrackSelection:
         if self.track_ids:
 
             if st.button(
-                "Limpar seleção",
+                "Clear selection",
                 key=f"{self.key}_clear"
             ):
 
@@ -259,7 +259,7 @@ class TrackSelection:
 
         # Recommendation button
         recommend_clicked = st.button(
-            "Recomendar",
+            "Add songs to playlist",
             type="primary",
             disabled=not self.is_complete,
             key=f"{self.key}_recommend"
